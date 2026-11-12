@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#EEF2FB">
+<title>나의 용돈 바구니</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐷</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#EEF2FB;--card:#fff;--ink:#24324A;--sub:#5F6B82;--line:#E1E6F0;
+--save:#2F6FD0;--save-t:#E2EDFC;--spend:#D9661C;--spend-t:#FDEBDC;--inv:#7A4CC2;--inv-t:#EEE6FA;--share:#23874F;--share-t:#DDF2E6;
+--gold:#F2B33D;--gold-t:#FDF1D6;color-scheme:light}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:"Jua","Apple SD Gothic Neo","Malgun Gothic",sans-serif;-webkit-tap-highlight-color:transparent}
+body{padding:env(safe-area-inset-top,0) 0 calc(78px + env(safe-area-inset-bottom,0))}
+.wrap{max-width:440px;margin:0 auto;padding:16px}
+h1,h2,h3,p{margin:0;font-weight:400}
+.card{background:var(--card);border-radius:20px;padding:16px;margin-bottom:12px;border:1px solid var(--line)}
+.row{display:flex;align-items:center;gap:10px}
+.between{justify-content:space-between}
+.sub{color:var(--sub);font-size:15px;line-height:1.5}
+.big{font-size:24px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.basket{border-radius:18px;padding:14px;text-align:left;border:none;font-family:inherit;width:100%}
+.basket .n{font-size:16px}.basket .a{font-size:22px;margin-top:4px}
+.b-save{background:var(--save-t);color:var(--save)}.b-spend{background:var(--spend-t);color:var(--spend)}
+.b-invest{background:var(--inv-t);color:var(--inv)}.b-share{background:var(--share-t);color:var(--share)}
+.btn{font-family:inherit;font-size:18px;border:none;border-radius:16px;padding:0 16px;min-height:56px;cursor:pointer;width:100%}
+.btn-main{background:var(--save);color:#fff}.btn-sub{background:var(--spend-t);color:var(--spend)}
+.btn-ghost{background:#F3F5F9;color:var(--ink)}.btn-danger{background:#FDE3E3;color:#B42318}
+.btn-sm{min-height:44px;font-size:16px;width:auto}
+.btn:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--save);outline-offset:2px}
+input,select,textarea{font-family:inherit;font-size:18px;width:100%;padding:12px 14px;border-radius:14px;border:1.5px solid var(--line);background:#fff;color:var(--ink)}
+label{display:block;font-size:15px;color:var(--sub);margin:12px 0 6px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font-family:inherit;font-size:16px;padding:10px 14px;border-radius:999px;border:1.5px solid var(--line);background:#fff;color:var(--ink);min-height:44px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.tabs{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(4,1fr);padding:6px 0 calc(6px + env(safe-area-inset-bottom,0));z-index:5}
+.tab{font-family:inherit;background:none;border:none;font-size:14px;color:var(--sub);display:flex;flex-direction:column;align-items:center;gap:2px;min-height:52px;cursor:pointer}
+.tab[aria-current="page"]{color:var(--save)}
+.tab svg{width:24px;height:24px}
+.sheet-bg{position:fixed;inset:0;background:rgba(20,26,38,.45);display:none;align-items:flex-end;justify-content:center;z-index:10}
+.sheet-bg.open{display:flex}
+.sheet{background:#fff;width:100%;max-width:440px;border-radius:24px 24px 0 0;padding:20px 18px calc(20px + env(safe-area-inset-bottom,0));max-height:88vh;overflow-y:auto}
+.toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:12px 18px;border-radius:14px;font-size:16px;display:none;z-index:20;max-width:90%;text-align:center}
+.weeks{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}
+.week{font-family:inherit;border:2px dashed #C5CCDA;background:#fff;border-radius:14px;min-height:52px;font-size:15px;color:var(--sub);cursor:pointer}
+.week[aria-pressed="true"]{border:2px solid var(--save);background:var(--save-t);color:var(--save)}
+.badges{display:flex;flex-wrap:wrap;gap:8px}
+.badge{font-size:14px;padding:6px 12px;border-radius:999px}
+.badge.on{background:var(--gold-t)}.badge.off{border:1px dashed #C5CCDA;color:var(--sub)}
+.rec{display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--line)}
+.rec:last-child{border-bottom:none}
+.rec .m{flex:1;min-width:0}.rec .t{font-size:17px}.rec .d{font-size:13px;color:var(--sub)}
+.amt-in{color:var(--save)}.amt-out{color:var(--spend)}
+.feel{font-size:24px;background:none;border:none;cursor:pointer;min-width:44px;min-height:44px}
+.del{background:none;border:none;color:#9AA3B5;font-size:14px;min-height:44px;cursor:pointer;font-family:inherit}
+.prompt-part{border-radius:6px;padding:2px 4px}
+.p-r{background:var(--save-t)}.p-c{background:var(--share-t)}.p-t{background:var(--spend-t)}.p-f{background:var(--inv-t)}
+.lab{display:inline-block;font-size:14px;padding:4px 10px;border-radius:8px;margin-bottom:6px}
+.l-r{background:var(--save-t);color:var(--save)}.l-c{background:var(--share-t);color:var(--share)}.l-t{background:var(--spend-t);color:var(--spend)}.l-f{background:var(--inv-t);color:var(--inv)}
+.preview{font-size:17px;line-height:1.8;background:#FAFBFD;border-radius:14px;padding:12px}
+.step{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:var(--ink);color:#fff;font-size:15px;flex-shrink:0}
+table.cmp{width:100%;border-collapse:collapse;font-size:15px}
+table.cmp th,table.cmp td{padding:8px 6px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+.slider-row{margin:10px 0}
+input[type=range]{padding:0;border:none;height:36px}
+.hidden{display:none!important}
+.note{font-size:14px;color:var(--sub);background:#F6F8FC;border-radius:12px;padding:10px 12px;line-height:1.5}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<nav class="tabs hidden" id="tabs" aria-label="메뉴">
+<button class="tab" data-tab="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>홈</button>
+<button class="tab" data-tab="records"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>기록</button>
+<button class="tab" data-tab="goal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></svg>목표·투자</button>
+<button class="tab" data-tab="ai"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/><path d="M10 10a2 2 0 1 1 3 1.7c-.6.4-1 .8-1 1.5M12 16h.01"/></svg>AI 질문</button>
+</nav>
+<div class="sheet-bg" id="sheetBg"><div class="sheet" id="sheet" role="dialog" aria-modal="true"></div></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script>
+const KEY='yongdon-v1';
+const B={save:{n:'저축',c:'b-save',d:'미래의 나를 위해 모아요'},spend:{n:'쓰기',c:'b-spend',d:'지금 필요한 곳에 써요'},invest:{n:'투자',c:'b-invest',d:'부모님과 함께 오래 키울 돈'},share:{n:'나눔',c:'b-share',d:'가족·친구에게 마음을 전해요'}};
+const ORDER=['save','spend','invest','share'];
+const FEEL={happy:'😊',soso:'😐',sad:'😢'};
+const BADGES=[['first','첫 기록'],['promise','약속 지킴이'],['invest','첫 투자'],['company','회사 탐험가'],['share','마음 나눔'],['goal','목표 달성']];
+function blank(){return{onboarded:false,grade:6,allowance:20000,ratio:{save:30,spend:30,invest:30,share:10},baskets:{save:0,spend:0,invest:0,share:0},records:[],goal:null,investedTotal:0,companies:[],promise:{text:'',weeks:[false,false,false,false]},badges:[]}}
+let S=load();
+function load(){try{const r=localStorage.getItem(KEY);if(!r)return blank();const d=JSON.parse(r);const b=blank();const o=Object.assign(b,d);
+if(!o.ratio||o.ratio.invest===undefined)o.ratio={save:30,spend:30,invest:30,share:10};
+o.baskets=Object.assign({save:0,spend:0,invest:0,share:0},o.baskets||{});
+o.records=o.records||[];o.companies=o.companies||[];o.badges=o.badges||[];
+o.promise=Object.assign({text:'',weeks:[false,false,false,false]},o.promise||{});return o}catch(e){return blank()}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){toast('저장 공간을 쓸 수 없어요. 시크릿 모드가 아닌지 확인해 주세요.')}}
+const won=n=>(Math.round(n)||0).toLocaleString('ko-KR')+'원';
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const today=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.style.display='block';clearTimeout(t._h);t._h=setTimeout(()=>t.style.display='none',2600)}
+function award(id){if(!S.badges.includes(id)){S.badges.push(id);save();const b=BADGES.find(x=>x[0]===id);toast('뱃지를 받았어요: '+b[1]+' 🏅')}}
+const PIG=`<svg width="56" height="56" viewBox="0 0 72 72" aria-hidden="true"><circle cx="36" cy="6" r="5" fill="#F7C948" stroke="#E0A82E" stroke-width="1.2"/><path d="M63 50 q6 -2 4 -7 q-2 -4 -5 0" stroke="#F4A3B8" stroke-width="2.2" fill="none" stroke-linecap="round"/><ellipse cx="25" cy="66" rx="5" ry="3.5" fill="#F4A3B8"/><ellipse cx="47" cy="66" rx="5" ry="3.5" fill="#F4A3B8"/><path d="M15 22 Q11 9 22 13 Q24 18 21 23 Z" fill="#FFB8C9"/><path d="M57 22 Q61 9 50 13 Q48 18 51 23 Z" fill="#FFB8C9"/><ellipse cx="36" cy="40" rx="28" ry="26" fill="#FFD1DC"/><rect x="30" y="14.5" width="12" height="3.2" rx="1.6" fill="#E895AA"/><ellipse cx="24" cy="42" rx="5" ry="6" fill="#2B2F44"/><ellipse cx="48" cy="42" rx="5" ry="6" fill="#2B2F44"/><circle cx="25.8" cy="39.5" r="2.1" fill="#fff"/><circle cx="49.8" cy="39.5" r="2.1" fill="#fff"/><ellipse cx="16" cy="52" rx="5.5" ry="3.2" fill="#FF8FAB" opacity=".55"/><ellipse cx="56" cy="52" rx="5.5" ry="3.2" fill="#FF8FAB" opacity=".55"/><ellipse cx="36" cy="52" rx="6.5" ry="4.5" fill="#FFB0C3"/><ellipse cx="33.8" cy="52" rx="1.1" ry="1.6" fill="#E07A95"/><ellipse cx="38.2" cy="52" rx="1.1" ry="1.6" fill="#E07A95"/><path d="M33.5 58.5 Q36 61 38.5 58.5" stroke="#E07A95" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg>`;
+let tab='home';
+function go(t){tab=t;render();window.scrollTo(0,0)}
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>go(b.dataset.tab));
+function render(){const app=document.getElementById('app');document.getElementById('tabs').classList.toggle('hidden',!S.onboarded);
+document.querySelectorAll('.tab').forEach(b=>b.setAttribute('aria-current',b.dataset.tab===tab?'page':'false'));
+if(!S.onboarded){app.innerHTML=onboardHTML();bindOnboard();return}
+app.innerHTML={home:homeHTML,records:recordsHTML,goal:goalHTML,ai:aiHTML}[tab]();
+({home:bindHome,records:bindRecords,goal:bindGoal,ai:bindAI})[tab]()}
+/* ---------- onboarding ---------- */
+function sliders(r){return ORDER.map(k=>`<div class="slider-row"><div class="row between"><span>${B[k].n}</span><span id="rv-${k}">${r[k]}%</span></div><input type="range" min="0" max="100" step="5" value="${r[k]}" data-k="${k}" aria-label="${B[k].n} 비율"></div>`).join('')}
+function bindSliders(r){document.querySelectorAll('input[type=range]').forEach(el=>el.oninput=()=>{const k=el.dataset.k;let v=+el.value;const others=ORDER.filter(x=>x!==k);let rest=100-v;const sum=others.reduce((a,x)=>a+r[x],0);
+others.forEach(x=>{r[x]=sum?Math.round(r[x]/sum*rest/5)*5:Math.round(rest/3/5)*5});r[k]=v;let diff=100-ORDER.reduce((a,x)=>a+r[x],0);const fix=others.find(x=>r[x]+diff>=0);if(fix)r[fix]+=diff;
+ORDER.forEach(x=>{document.getElementById('rv-'+x).textContent=r[x]+'%';const s=document.querySelector(`input[data-k="${x}"]`);if(s&&x!==k)s.value=r[x]})})}
+function onboardHTML(){return`<div class="card" style="text-align:center">${PIG}<h1 class="big" style="margin-top:8px">나의 용돈 바구니</h1><p class="sub" style="margin-top:6px">용돈을 바구니에 나눠 담고,<br>쓴 돈을 기록해 봐요.</p></div>
+<div class="card"><label for="ob-grade">몇 학년이에요?</label><select id="ob-grade">${[1,2,3,4,5,6].map(g=>`<option value="${g}" ${g===S.grade?'selected':''}>${g}학년</option>`).join('')}</select>
+<label for="ob-allow">한 달 용돈은 얼마예요?</label><input id="ob-allow" type="number" inputmode="numeric" min="0" step="1000" value="${S.allowance}">
+<label style="margin-top:16px">용돈을 어떻게 나눌까요? (합계 100%)</label>${sliders(S.ratio)}
+<p class="note">추천 비율은 저축 3 · 쓰기 3 · 투자 3 · 나눔 1이에요. 이름, 학교, 전화번호는 적지 않아요. 기록은 이 기기에만 저장돼요.</p></div>
+<button class="btn btn-main" id="ob-go">시작하기</button>`}
+function bindOnboard(){const r=Object.assign({},S.ratio);bindSliders(r);document.getElementById('ob-go').onclick=()=>{const a=+document.getElementById('ob-allow').value;if(!(a>=0)){toast('용돈을 숫자로 적어 주세요');return}
+S.grade=+document.getElementById('ob-grade').value;S.allowance=a;S.ratio=r;S.onboarded=true;save();tab='home';render();openA2HS()}}
+function openA2HS(){openSheet(`<h2 class="big">앱처럼 쓰는 방법</h2><p class="sub" style="margin:10px 0">홈 화면에 추가하면 아이콘이 생기고, 기록도 더 안전하게 남아요.</p>
+<p class="note"><b>아이폰:</b> 아래 공유 버튼 → "홈 화면에 추가"<br><b>안드로이드:</b> 오른쪽 위 ⋮ → "홈 화면에 추가"</p><button class="btn btn-main" style="margin-top:14px" onclick="closeSheet()">알겠어요</button>`)}
+/* ---------- home ---------- */
+function homeHTML(){const wk=S.promise.weeks;const g=S.goal;const pct=g?Math.min(100,Math.round(S.baskets.save/g.price*100)):0;
+return`<div class="row between" style="margin-bottom:12px"><div class="row">${PIG}<div><p class="sub">모아가 기다렸어요</p><h1 class="big">나의 용돈 바구니</h1></div></div><button class="btn btn-ghost btn-sm" id="open-set" aria-label="설정">설정</button></div>
+<div class="card"><div class="row between"><h2 style="font-size:19px">이번 달 나의 약속</h2><button class="btn btn-ghost btn-sm" id="edit-prom">${S.promise.text?'고치기':'적기'}</button></div>
+<p style="font-size:18px;margin-top:8px;line-height:1.5">${S.promise.text?esc(S.promise.text):'<span class="sub">"나는 이번 달에 ___을 ___만큼 할 거예요."</span>'}</p>
+<div class="weeks">${wk.map((w,i)=>`<button class="week" data-w="${i}" aria-pressed="${w}">${i+1}주 ${w?'✓':''}</button>`).join('')}</div></div>
+<div class="grid2" style="margin-bottom:12px">${ORDER.map(k=>`<div class="basket ${B[k].c}"><p class="n">${B[k].n}</p><p class="a">${won(S.baskets[k])}</p></div>`).join('')}</div>
+<div class="grid2" style="margin-bottom:12px"><button class="btn btn-main" id="b-income">용돈 받기</button><button class="btn btn-sub" id="b-expense">쓴 돈 적기</button></div>
+${g?`<div class="card"><div class="row between"><h2 style="font-size:19px">목표: ${esc(g.item)}</h2><span class="sub">${pct}%</span></div><div style="height:16px;background:var(--save-t);border-radius:8px;margin:10px 0 6px;overflow:hidden"><div style="width:${pct}%;height:100%;background:var(--save)"></div></div><p class="sub">${pct>=100?'목표를 이뤘어요! 🎉':won(g.price-S.baskets.save)+'만 더 모으면 돼요!'}</p></div>`:''}
+<div class="card"><h2 style="font-size:17px;margin-bottom:8px">내 뱃지</h2><div class="badges">${BADGES.map(b=>`<span class="badge ${S.badges.includes(b[0])?'on':'off'}">${S.badges.includes(b[0])?'🏅 ':'🔒 '}${b[1]}</span>`).join('')}</div></div>`}
+function bindHome(){document.getElementById('b-income').onclick=incomeSheet;document.getElementById('b-expense').onclick=expenseSheet;document.getElementById('edit-prom').onclick=promiseSheet;document.getElementById('open-set').onclick=settingsSheet;
+document.querySelectorAll('.week').forEach(b=>b.onclick=()=>{if(!S.promise.text){toast('먼저 약속을 적어 주세요');return}const i=+b.dataset.w;S.promise.weeks[i]=!S.promise.weeks[i];save();if(S.promise.weeks.every(x=>x))award('promise');render()})}
+/* ---------- sheets ---------- */
+function openSheet(h){document.getElementById('sheet').innerHTML=h;document.getElementById('sheetBg').classList.add('open');const f=document.querySelector('#sheet input,#sheet select,#sheet button');if(f)f.focus()}
+function closeSheet(){document.getElementById('sheetBg').classList.remove('open')}
+function ask(msg,yes,label){openSheet(`<h2 class="big">확인해 주세요</h2><p style="font-size:18px;margin:12px 0 16px;line-height:1.5">${msg}</p><div class="grid2"><button class="btn btn-ghost" id="ask-no">아니요</button><button class="btn btn-danger" id="ask-yes">${label||'네'}</button></div>`);document.getElementById('ask-no').onclick=closeSheet;document.getElementById('ask-yes').onclick=()=>{closeSheet();yes()}}
+document.getElementById('sheetBg').onclick=e=>{if(e.target.id==='sheetBg')closeSheet()};
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSheet()});
+function incomeSheet(){openSheet(`<h2 class="big">용돈 받기</h2><label for="in-amt">받은 돈</label><input id="in-amt" type="number" inputmode="numeric" min="1" step="1000" value="${S.allowance}">
+<p class="note" style="margin-top:10px">저축 ${S.ratio.save}% · 쓰기 ${S.ratio.spend}% · 투자 ${S.ratio.invest}% · 나눔 ${S.ratio.share}%로 나눠 담아요.</p>
+<div class="grid2" style="margin-top:14px"><button class="btn btn-ghost" onclick="closeSheet()">취소</button><button class="btn btn-main" id="in-ok">나눠 담기</button></div>`);
+document.getElementById('in-ok').onclick=()=>{const a=Math.round(+document.getElementById('in-amt').value);if(!(a>0)){toast('받은 돈을 적어 주세요');return}
+let used=0;const parts={};['spend','invest','share'].forEach(k=>{parts[k]=Math.floor(a*S.ratio[k]/100);used+=parts[k]});parts.save=a-used;
+ORDER.forEach(k=>S.baskets[k]+=parts[k]);S.records.unshift({id:Date.now(),date:today(),type:'income',amount:a,parts});save();closeSheet();render();
+toast(`저축 ${won(parts.save)} · 쓰기 ${won(parts.spend)} · 투자 ${won(parts.invest)} · 나눔 ${won(parts.share)}`)}}
+function expenseSheet(){let need='need',basket='spend';
+openSheet(`<h2 class="big">쓴 돈 적기</h2><label for="ex-amt">얼마를 썼나요?</label><input id="ex-amt" type="number" inputmode="numeric" min="1" step="100">
+<label for="ex-memo">무엇을 샀나요?</label><input id="ex-memo" maxlength="30" placeholder="예: 떡볶이, 공책">
+<label>어느 바구니에서 썼나요?</label><div class="chips" id="ex-b">${['spend','share','save'].map(k=>`<button class="chip" data-v="${k}" aria-pressed="${k===basket}">${B[k].n}</button>`).join('')}</div>
+<label>필요한 것? 원하는 것?</label><div class="chips" id="ex-n"><button class="chip" data-v="need" aria-pressed="true">필요한 것</button><button class="chip" data-v="want" aria-pressed="false">원하는 것</button></div>
+<details style="margin-top:12px"><summary class="sub" style="cursor:pointer;min-height:32px">어느 회사가 만들었을까? (안 적어도 돼요)</summary><input id="ex-maker" maxlength="20" placeholder="예: 과자 만드는 회사" style="margin-top:8px"></details>
+<div class="grid2" style="margin-top:16px"><button class="btn btn-ghost" onclick="closeSheet()">취소</button><button class="btn btn-main" id="ex-ok">저장하기</button></div>`);
+const pick=(id,cb)=>document.querySelectorAll(`#${id} .chip`).forEach(c=>c.onclick=()=>{document.querySelectorAll(`#${id} .chip`).forEach(x=>x.setAttribute('aria-pressed','false'));c.setAttribute('aria-pressed','true');cb(c.dataset.v)});
+pick('ex-b',v=>basket=v);pick('ex-n',v=>need=v);
+document.getElementById('ex-ok').onclick=()=>{const a=Math.round(+document.getElementById('ex-amt').value);const memo=document.getElementById('ex-memo').value.trim();const maker=document.getElementById('ex-maker').value.trim();
+if(!(a>0)){toast('쓴 돈을 적어 주세요');return}if(!memo){toast('무엇을 샀는지 적어 주세요');return}
+if(a>S.baskets[basket]){toast(B[basket].n+' 바구니에 돈이 부족해요 ('+won(S.baskets[basket])+' 남음)');return}
+S.baskets[basket]-=a;const rec={id:Date.now(),date:today(),type:'expense',amount:a,memo,need,basket,maker,feeling:''};S.records.unshift(rec);award('first');if(basket==='share')award('share');save();
+let msg='';if(need==='want'&&S.goal&&S.goal.price>0){msg=`<p class="note" style="margin-top:12px">이 돈이면 ${esc(S.goal.item)}까지 ${Math.round(a/S.goal.price*100)}% 더 가까워질 수 있었어요. 이게 바로 <b>기회비용</b>이에요.</p>`}
+openSheet(`<h2 class="big">잘 썼나요?</h2><p class="sub" style="margin-top:6px">${esc(memo)} ${won(a)}</p>${msg}<div class="row" style="justify-content:center;gap:18px;margin:18px 0">${Object.entries(FEEL).map(([k,e])=>`<button class="feel" style="font-size:40px" data-f="${k}" aria-label="${{happy:'잘 썼어요',soso:'보통이에요',sad:'아쉬워요'}[k]}">${e}</button>`).join('')}</div><button class="btn btn-ghost" onclick="closeSheet();render()">나중에 고를게요</button>`);
+document.querySelectorAll('#sheet .feel').forEach(b=>b.onclick=()=>{rec.feeling=b.dataset.f;save();closeSheet();render();toast('기록했어요!')})}}
+function promiseSheet(){openSheet(`<h2 class="big">이번 달 나의 약속</h2><p class="sub" style="margin-top:6px">학습지 4번에 적은 약속을 옮겨 적어요.</p>
+<label for="pr-t">약속</label><textarea id="pr-t" rows="3" maxlength="80" placeholder="나는 이번 달에 간식을 일주일에 3천 원까지만 쓸 거예요.">${esc(S.promise.text)}</textarea>
+<p class="note" style="margin-top:8px">숫자가 들어가야 지켰는지 체크하기 쉬워요.</p>
+<div class="grid2" style="margin-top:14px"><button class="btn btn-ghost" onclick="closeSheet()">취소</button><button class="btn btn-main" id="pr-ok">저장하기</button></div>`);
+document.getElementById('pr-ok').onclick=()=>{const t=document.getElementById('pr-t').value.trim();if(!t){toast('약속을 적어 주세요');return}if(t!==S.promise.text)S.promise={text:t,weeks:[false,false,false,false]};save();closeSheet();render()}}
+function settingsSheet(){const r=Object.assign({},S.ratio);openSheet(`<h2 class="big">설정</h2><label for="st-allow">한 달 용돈</label><input id="st-allow" type="number" inputmode="numeric" min="0" step="1000" value="${S.allowance}">
+<label for="st-grade">학년</label><select id="st-grade">${[1,2,3,4,5,6].map(g=>`<option value="${g}" ${g===S.grade?'selected':''}>${g}학년</option>`).join('')}</select>
+<label style="margin-top:14px">바구니 비율</label>${sliders(r)}
+<button class="btn btn-main" id="st-ok" style="margin-top:10px">저장하기</button><button class="btn btn-ghost" style="margin-top:10px" onclick="closeSheet();openA2HS()">홈 화면에 추가하는 방법</button>
+<button class="btn btn-danger" id="st-reset" style="margin-top:10px">처음부터 다시</button>`);bindSliders(r);
+document.getElementById('st-ok').onclick=()=>{S.allowance=+document.getElementById('st-allow').value||0;S.grade=+document.getElementById('st-grade').value;S.ratio=r;save();closeSheet();render();toast('저장했어요')};
+document.getElementById('st-reset').onclick=()=>ask('모든 기록이 지워져요. 정말 처음부터 다시 할까요?',()=>ask('한 번 더 확인할게요. 지운 기록은 되돌릴 수 없어요.',()=>{try{localStorage.removeItem(KEY)}catch(e){}S=blank();tab='home';render()},'모두 지우기'),'다시 하기')}
+/* ---------- records ---------- */
+function recordsHTML(){const ex=S.records.filter(r=>r.type==='expense');const sum=t=>ex.filter(r=>r.need===t).reduce((a,r)=>a+r.amount,0);const sad=ex.filter(r=>r.feeling==='sad').reduce((a,r)=>a+r.amount,0);
+return`<h1 class="big" style="margin:4px 0 12px">기록</h1><div class="card"><h2 style="font-size:18px">돌아보기</h2><div class="grid2" style="margin-top:10px"><div class="basket b-save"><p class="n">필요한 것</p><p class="a">${won(sum('need'))}</p></div><div class="basket b-spend"><p class="n">원하는 것</p><p class="a">${won(sum('want'))}</p></div></div>
+${sad?`<p class="note" style="margin-top:10px">😢 아쉬운 돈 ${won(sad)}${S.goal?` — 이 돈만 모아도 ${esc(S.goal.item)}까지 ${Math.round(sad/S.goal.price*100)}% 갈 수 있었어요.`:''}</p>`:''}</div>
+<div class="card">${S.records.length?S.records.map(r=>{if(r.type==='income')return`<div class="rec"><div class="m"><p class="t">용돈 받기</p><p class="d">${r.date}</p></div><span class="amt-in">+${won(r.amount)}</span><button class="del" data-id="${r.id}">삭제</button></div>`;
+if(r.type==='invest')return`<div class="rec"><div class="m"><p class="t">부모님과 함께 투자</p><p class="d">${r.date}</p></div><span style="color:var(--inv)">-${won(r.amount)}</span><button class="del" data-id="${r.id}">삭제</button></div>`;
+return`<div class="rec"><button class="feel" data-f="${r.id}" aria-label="잘 썼는지 바꾸기">${FEEL[r.feeling]||'➕'}</button><div class="m"><p class="t">${esc(r.memo)}</p><p class="d">${r.date} · ${B[r.basket].n} · ${r.need==='need'?'필요':'원함'}${r.maker?' · '+esc(r.maker):''}</p></div><span class="amt-out">-${won(r.amount)}</span><button class="del" data-id="${r.id}">삭제</button></div>`}).join(''):'<p class="sub">아직 기록이 없어요. 홈에서 "용돈 받기"부터 해 봐요.</p>'}</div>`}
+function bindRecords(){document.querySelectorAll('.rec .feel').forEach(b=>b.onclick=()=>{const r=S.records.find(x=>x.id==b.dataset.f);const k=['happy','soso','sad'];r.feeling=k[(k.indexOf(r.feeling)+1)%3];save();render()});
+document.querySelectorAll('.del').forEach(b=>b.onclick=()=>{const i=S.records.findIndex(x=>x.id==b.dataset.id);const r=S.records[i];ask('이 기록을 지울까요? 바구니 금액도 되돌아가요.',()=>{
+if(r.type==='income'){ORDER.forEach(k=>S.baskets[k]-=r.parts[k])}else if(r.type==='invest'){S.baskets.invest+=r.amount;S.investedTotal-=r.amount}else{S.baskets[r.basket]+=r.amount}S.records.splice(i,1);save();render()},'지우기')})}
+/* ---------- goal & invest ---------- */
+function goalHTML(){const g=S.goal;const pct=g?Math.min(100,Math.round(S.baskets.save/g.price*100)):0;
+return`<h1 class="big" style="margin:4px 0 12px">목표 · 투자</h1>
+<div class="card"><div class="row between"><h2 style="font-size:19px">저축 목표</h2><button class="btn btn-ghost btn-sm" id="g-edit">${g?'바꾸기':'만들기'}</button></div>
+${g?`<div class="row" style="margin-top:12px;gap:16px"><svg width="70" height="70" viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="jar"><path d="M18 14h28v6c6 4 8 10 8 18 0 12-8 20-22 20S10 50 10 38c0-8 2-14 8-18z"/></clipPath></defs><path d="M18 14h28v6c6 4 8 10 8 18 0 12-8 20-22 20S10 50 10 38c0-8 2-14 8-18z" fill="var(--save-t)" stroke="var(--save)" stroke-width="2"/><rect x="0" y="${58-44*pct/100}" width="64" height="64" fill="var(--save)" clip-path="url(#jar)"/><rect x="16" y="8" width="32" height="7" rx="3" fill="var(--save)"/></svg>
+<div><p style="font-size:19px">${esc(g.item)}</p><p class="sub">${won(g.price)} 중 ${won(Math.min(S.baskets.save,g.price))} (${pct}%)</p></div></div>`:'<p class="sub" style="margin-top:8px">갖고 싶은 물건과 가격을 정하면, 저축 바구니가 채워지는 걸 볼 수 있어요.</p>'}</div>
+<div class="card"><h2 style="font-size:19px">저축과 투자는 뭐가 다를까?</h2><table class="cmp" style="margin-top:8px"><tr><th></th><th style="color:var(--save)">저축</th><th style="color:var(--inv)">투자</th></tr><tr><td>원래 돈</td><td>지켜져요</td><td>줄어들 수도 있어요</td></tr><tr><td>늘어나는 정도</td><td>조금씩, 확실하게</td><td>많이 늘 수도 있어요</td></tr><tr><td>이럴 때 좋아요</td><td>곧 쓸 돈</td><td>오래 기다릴 수 있는 돈</td></tr></table>
+<p class="note" style="margin-top:10px">투자는 돈이 줄어들 수도 있어요. 그래서 잘 아는 회사에, 나눠서, 오래 하는 거예요.</p></div>
+<div class="card b-invest" style="border:none"><p class="n" style="font-size:16px">투자 바구니</p><p style="font-size:24px">${won(S.baskets.invest)}</p><p style="font-size:14px;margin-top:4px">부모님과 함께 투자한 돈: ${won(S.investedTotal)}</p>
+<button class="btn btn-sm" style="background:#fff;color:var(--inv);margin-top:10px;width:100%" id="inv-add">부모님과 함께 투자했어요</button></div>
+<div class="card"><div class="row between"><h2 style="font-size:19px">내가 아는 회사</h2><button class="btn btn-ghost btn-sm" id="co-add">추가</button></div>
+<p class="sub" style="margin-top:6px">내가 어른이 돼서도 쓸 것 같은 물건을 만드는 회사는?</p>
+${S.companies.map((c,i)=>`<div class="rec"><div class="m"><p class="t">${esc(c.name)}</p><p class="d">${esc(c.product)}${c.why?' · '+esc(c.why):''}</p></div><button class="del" data-ci="${i}">삭제</button></div>`).join('')}</div>`}
+function bindGoal(){document.getElementById('g-edit').onclick=()=>{openSheet(`<h2 class="big">저축 목표</h2><label for="g-i">갖고 싶은 것</label><input id="g-i" maxlength="20" value="${esc(S.goal?.item||'')}" placeholder="예: 보드게임"><label for="g-p">가격</label><input id="g-p" type="number" inputmode="numeric" min="1" step="1000" value="${S.goal?.price||''}">
+<div class="grid2" style="margin-top:14px"><button class="btn btn-ghost" onclick="closeSheet()">취소</button><button class="btn btn-main" id="g-ok">저장하기</button></div>`);
+document.getElementById('g-ok').onclick=()=>{const item=document.getElementById('g-i').value.trim(),price=+document.getElementById('g-p').value;if(!item||!(price>0)){toast('물건과 가격을 적어 주세요');return}S.goal={item,price};save();closeSheet();render()}};
+document.getElementById('inv-add').onclick=()=>{openSheet(`<h2 class="big">부모님과 함께 투자했어요</h2><p class="sub" style="margin-top:6px">실제 투자는 부모님 계좌로 해요. 여기에는 얼마를 투자했는지만 적어요.</p><label for="iv-a">투자한 돈</label><input id="iv-a" type="number" inputmode="numeric" min="1" step="1000">
+<div class="grid2" style="margin-top:14px"><button class="btn btn-ghost" onclick="closeSheet()">취소</button><button class="btn btn-main" id="iv-ok">기록하기</button></div>`);
+document.getElementById('iv-ok').onclick=()=>{const a=Math.round(+document.getElementById('iv-a').value);if(!(a>0)){toast('금액을 적어 주세요');return}if(a>S.baskets.invest){toast('투자 바구니에 돈이 부족해요');return}
+S.baskets.invest-=a;S.investedTotal+=a;S.records.unshift({id:Date.now(),date:today(),type:'invest',amount:a});award('invest');save();closeSheet();render()}};
+document.getElementById('co-add').onclick=()=>{openSheet(`<h2 class="big">내가 아는 회사</h2><label for="co-n">회사 이름</label><input id="co-n" maxlength="20"><label for="co-p">무엇을 만들거나 팔까요?</label><input id="co-p" maxlength="30" placeholder="예: 휴대폰, 과자, 택배"><label for="co-w">왜 좋은 회사일까? (안 적어도 돼요)</label><input id="co-w" maxlength="40">
+<div class="grid2" style="margin-top:14px"><button class="btn btn-ghost" onclick="closeSheet()">취소</button><button class="btn btn-main" id="co-ok">추가하기</button></div>`);
+document.getElementById('co-ok').onclick=()=>{const name=document.getElementById('co-n').value.trim(),product=document.getElementById('co-p').value.trim(),why=document.getElementById('co-w').value.trim();if(!name||!product){toast('회사 이름과 만드는 것을 적어 주세요');return}
+S.companies.push({name,product,why});if(S.companies.length>=3)award('company');save();closeSheet();render()}};
+document.querySelectorAll('[data-ci]').forEach(b=>b.onclick=()=>{S.companies.splice(+b.dataset.ci,1);save();render()})}
+/* ---------- AI (RCTF) ---------- */
+const TASKS={save:'돈을 모으는 방법을 알려줘.',review:'내 이번 달 소비에서 잘한 점과 고칠 점을 알려줘.',company:'이 회사는 무엇으로 돈을 버는지, 어떤 계열사가 있는지 알려줘.',buy:'이 물건을 사는 게 합리적인 소비인지 필요한 것과 원하는 것으로 나눠서 생각해 줘.'};
+let ai={t:'save',co:''};
+function ctx(){const ex=S.records.filter(r=>r.type==='expense');const want=ex.filter(r=>r.need==='want').reduce((a,r)=>a+r.amount,0);
+let c=`나는 초등학교 ${S.grade}학년이고 한 달 용돈은 ${won(S.allowance)}이야.`;if(S.goal)c+=` ${S.goal.item}(${won(S.goal.price)})을 사고 싶어서 지금 ${won(S.baskets.save)}을 모았어.`;if(ai.t==='review'&&ex.length)c+=` 이번 달에 원하는 것에 ${won(want)}을 썼어.`;if(ai.t==='company'&&ai.co)c+=` ${ai.co}라는 회사가 궁금해.`;return c}
+function aiHTML(){return`<h1 class="big" style="margin:4px 0 6px">AI에게 똑똑하게 묻기</h1><p class="sub" style="margin-bottom:12px">묻고 → 확인하고 → 고르고 → 실천해요</p>
+<div class="card"><div class="row" style="margin-bottom:10px"><span class="step">1</span><h2 style="font-size:19px">잘 묻기 (RCTF)</h2></div>
+<span class="lab l-r">R 역할</span><input id="a-r" value="너는 친절한 용돈 선생님이야.">
+<span class="lab l-c" style="margin-top:10px">C 맥락</span><textarea id="a-c" rows="3">${esc(ctx())}</textarea>
+<span class="lab l-t" style="margin-top:10px">T 작업</span><select id="a-t">${Object.entries({save:'돈 모으는 방법',review:'이번 달 돌아보기',company:'회사 알아보기',buy:'살까 말까 고민'}).map(([k,v])=>`<option value="${k}" ${k===ai.t?'selected':''}>${v}</option>`).join('')}</select>
+<div id="co-wrap" class="${ai.t==='company'?'':'hidden'}" style="margin-top:8px"><input id="a-co" placeholder="궁금한 회사 이름" value="${esc(ai.co)}" list="co-list"><datalist id="co-list">${S.companies.map(c=>`<option value="${esc(c.name)}">`).join('')}</datalist></div>
+<textarea id="a-tt" rows="2" style="margin-top:8px">${esc(TASKS[ai.t])}</textarea>
+<span class="lab l-f" style="margin-top:10px">F 형식</span><input id="a-f" value="초등학생이 이해하게 쉽게, 3가지만 번호로 써줘.">
+<p class="sub" style="margin:14px 0 6px">완성된 질문</p><div class="preview" id="a-prev"></div>
+<button class="btn btn-main" style="margin-top:10px" id="a-copy">질문 복사하기</button>
+<p class="note" style="margin-top:10px">주소, 전화번호, 비밀번호처럼 나를 찾을 수 있는 정보는 쓰지 않아요. 궁금한 건 부모님과 함께 AI에게 물어봐요.</p></div>
+<div class="card"><div class="row" style="margin-bottom:8px"><span class="step">2</span><h2 style="font-size:19px">확인하기</h2></div><p style="font-size:18px;background:#FFF3C9;border-radius:14px;padding:12px">"내 말을 잘 이해했는지 너의 말로 설명해줄래?"</p><button class="btn btn-ghost" style="margin-top:10px" id="a-chk">확인 문장 복사하기</button><p class="sub" style="margin-top:8px">AI가 설명한 내용을 보고, 내 말을 잘 이해했는지 확인해요.</p></div>
+<div class="card"><div class="row" style="margin-bottom:8px"><span class="step">3</span><h2 style="font-size:19px">내가 고르기</h2></div>${['내 상황에 맞는 방법일까?','내가 정말 할 수 있는 방법일까?','부모님과 이야기해볼 만한 방법일까?'].map(q=>`<label class="row" style="color:var(--ink);font-size:17px;margin:8px 0"><input type="checkbox" style="width:24px;height:24px"> ${q}</label>`).join('')}<p style="color:var(--save);font-size:17px;margin-top:6px">AI의 답은 조언! 선택은 내가 해요.</p></div>
+<div class="card"><div class="row" style="margin-bottom:8px"><span class="step">4</span><h2 style="font-size:19px">실천하기</h2></div><p class="sub">고른 방법을 이번 달 약속으로 적고, 홈에서 매주 체크해요.</p><button class="btn btn-main" style="margin-top:10px" id="a-prom">이번 달 약속 적으러 가기</button></div>`}
+function bindAI(){const ids=['a-r','a-c','a-tt','a-f'];const prev=()=>{const v=ids.map(i=>document.getElementById(i).value.trim());document.getElementById('a-prev').innerHTML=`<span class="prompt-part p-r">${esc(v[0])}</span> <span class="prompt-part p-c">${esc(v[1])}</span> <span class="prompt-part p-t">${esc(v[2])}</span> <span class="prompt-part p-f">${esc(v[3])}</span>`};
+ids.forEach(i=>document.getElementById(i).oninput=prev);prev();
+document.getElementById('a-t').onchange=e=>{ai.t=e.target.value;render()};
+const co=document.getElementById('a-co');if(co)co.oninput=()=>{ai.co=co.value.trim();document.getElementById('a-c').value=ctx();prev()};
+const copy=t=>{(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast('복사했어요! AI에 붙여넣어 보세요')).catch(()=>{const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();try{document.execCommand('copy');toast('복사했어요!')}catch(e){toast('길게 눌러서 복사해 주세요')}ta.remove()})};
+document.getElementById('a-copy').onclick=()=>copy(ids.map(i=>document.getElementById(i).value.trim()).join(' '));
+document.getElementById('a-chk').onclick=()=>copy('내 말을 잘 이해했는지 너의 말로 설명해줄래?');
+document.getElementById('a-prom').onclick=()=>{go('home');promiseSheet()}}
+render();
+</script>
+</body>
+</html>
